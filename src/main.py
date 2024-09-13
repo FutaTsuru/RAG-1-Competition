@@ -17,7 +17,7 @@ loader = TextLoader(file_path, encoding='utf-8')
 documents = loader.load()
 
 # テキストを小さなチャンクに分割
-text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50, separator="\n")
+text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=50, separator="\n")
 texts = text_splitter.split_documents(documents)
 
 # 2. ベクトルストアの作成
@@ -50,6 +50,7 @@ def main():
             break
         response = rag_response(query)
         print(f"AI: {response['result']}\n")
+        print(f"response: {response}\n")
 
 if __name__ == "__main__":
     main()
