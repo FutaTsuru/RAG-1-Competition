@@ -4,6 +4,8 @@ import pandas as pd
 import tiktoken
 from openai import OpenAI
 from tqdm import tqdm
+from dotenv import load_dotenv 
+import os
 
 
 class Evaluator():
@@ -25,13 +27,15 @@ class CRAGEvaluator(Evaluator):
             encoding = tiktoken.encoding_for_model(model_name)
         except KeyError:
             encoding = tiktoken.get_encoding("cl100k_base")
-
-        client = OpenAI()
+        load_dotenv() 
+        openai_api_key = os.getenv('OPENAI_API_KEY')
+        client = OpenAI(api_key=openai_api_key)
         start = time.time()
         ans_sims = {}
         score = 0
         for i, true in tqdm(self.ans.iterrows()):
-            res, num_tokens = self._judge_by_crag(self.sub.loc[i][1], true[1], client, model_name, encoding) # type: ignore
+            # res, num_tokens = self._judge_by_crag(self.sub.loc[i][1], true[1], client, model_name, encoding) # type: ignore
+            res, num_tokens = self._judge_by_crag(self.sub.iloc[i, 1], true[1], client, model_name, encoding) # type: ignore
             if save_sims:
                 ans_sims[i] = {
                     'judge_result': res['judged'],
