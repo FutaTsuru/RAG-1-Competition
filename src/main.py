@@ -8,6 +8,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQA
+from langchain import PromptTemplate
 
 # 1. 知識ベースの準備
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +33,7 @@ llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7)
 # 4. RAGシステムの構築
 qa = RetrievalQA.from_chain_type(
     llm=llm,
-    chain_type="map_reduce",
+    chain_type="stuff",
     retriever=retriever,
 )
 
