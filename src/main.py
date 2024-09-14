@@ -9,12 +9,23 @@ from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQA
 
+novel_lists = ['カインの末裔.txt',
+               'サーカスの怪人.txt',
+               '芽生.txt',
+               '競漕.txt',
+               '死生に関するいくつかの断想.txt',
+               '小説　不如帰.txt',
+               '流行暗殺節.txt']
+
 # 1. 知識ベースの準備
 script_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(script_dir, '..', 'novels', 'works', '競漕.txt')
 
-loader = TextLoader(file_path, encoding='utf-8')
-documents = loader.load()
+documents = []
+
+for novel in novel_lists:
+    file_path = os.path.join(script_dir, '..', 'novels', 'works', novel)
+    loader = TextLoader(file_path, encoding='utf-8')
+    documents += loader.load()
 
 # テキストを小さなチャンクに分割
 text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=50, separator="\n")
