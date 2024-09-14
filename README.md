@@ -15,7 +15,18 @@ OPENAI_API_KEY = ???
 ```
 python .\src\main.py
 ```
-# 配布データと応募用ファイル作成方法の説明
+
+実行結果は、RAG-1-Competition/evaluate/submit/predictions.csvに格納。<p>
+精度評価するには、<p>
+```
+cd evaluation
+```
+```
+python ./src/crag.py
+```
+を実行する。
+
+# 配布データと応募用ファイル作成方法の説明(主催者から配布されたもの)
 
 本コンペティションで配布されるデータと応募用ファイルの作成方法や投稿する際の注意点について説明する.
 
