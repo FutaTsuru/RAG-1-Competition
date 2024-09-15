@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+import ast
 from dotenv import load_dotenv 
 load_dotenv()  
 
@@ -51,17 +53,31 @@ qa = RetrievalQA.from_chain_type(
 def rag_response(query):
     return qa.invoke(query)
 
-# 6. ユーザーからの入力を受け取り、AIの応答を表示
 def main():
-    print("質問を入力してください。終了するには 'exit' と入力してください。")
-    while True:
-        query = input("You: ")
-        if query.lower() in ['exit', 'quit', '終了']:
-            print("対話を終了します。")
-            break
-        response = rag_response(query)
-        print(f"AI: {response['result']}\n")
-        print(f"response: {response}\n")
+    question_db = pd.read_csv("./question/query.csv")
+    
+    # データを格納するためのリストを作成
+    data = {"index": [], "answer": [], "reason": []}
+    
+    for _, row in question_db.iterrows():
+        index = row['index']
+        problem = row['problem']
+        problem = problem + ' 50字以内で、回答のみ出力してください。'
+        
+        # RAGシステムの応答を取得
+        response = rag_response(problem)["result"]
+        response = response.replace("\n", "")
+        
+        # データをリストに追加
+        data["index"].append(index)
+        data["answer"].append(response)
+        data["reason"].append("なし")
+    
+    # データをDataFrameに変換
+    prediction_db = pd.DataFrame(data)
+    
+    # CSVに保存
+    prediction_db.to_csv("./evaluation/submit/predictions.csv", index=False, header=False)
 
 if __name__ == "__main__":
     main()
