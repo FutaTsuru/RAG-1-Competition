@@ -34,8 +34,8 @@ class CRAGEvaluator(Evaluator):
         ans_sims = {}
         score = 0
         for i, true in tqdm(self.ans.iterrows()):
-            # res, num_tokens = self._judge_by_crag(self.sub.loc[i][1], true[1], client, model_name, encoding) # type: ignore
-            res, num_tokens = self._judge_by_crag(self.sub.iloc[i, 1], true[1], client, model_name, encoding) # type: ignore
+            res, num_tokens = self._judge_by_crag(self.sub.loc[i][1], true[1], client, model_name, encoding) # type: ignore
+            # res, num_tokens = self._judge_by_crag(self.sub.iloc[i, 1], true[1], client, model_name, encoding) # type: ignore
             if save_sims:
                 ans_sims[i] = {
                     'judge_result': res['judged'],

@@ -42,10 +42,10 @@ class Validator():
     def validate(self, result) -> None:
         start = time.time()
         self.check_data(result)
-        # self.check_samples(result)
+        self.check_samples(result)
         self.check_dtype(result)
         self.check_keys(result)
-        # self.check_details(result)
+        self.check_details(result)
         print('  time elapsed: {}[s]'.format(time.time()-start))
 
 
@@ -87,7 +87,6 @@ class DataFrameValidator(Validator):
         print(msg, end='\r')
         samples = set(self.data.index)
         if samples != self.data_format['samples']:
-            print(samples)
             raise SampleError('Missing samples or invalid samples found.')
         isnull = self.data.isnull().sum(axis=0)
         count = 0
