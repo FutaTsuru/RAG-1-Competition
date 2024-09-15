@@ -62,20 +62,22 @@ def main():
     for _, row in question_db.iterrows():
         index = row['index']
         problem = row['problem']
+        problem = problem + ' 50字以内で、回答のみ出力してください。'
         
         # RAGシステムの応答を取得
-        response = rag_response(problem)
+        response = rag_response(problem)["result"]
+        response = response.replace("\n", "")
         
         # データをリストに追加
         data["index"].append(index)
-        data["answer"].append(response["result"])
+        data["answer"].append(response)
         data["reason"].append("なし")
     
     # データをDataFrameに変換
     prediction_db = pd.DataFrame(data)
     
     # CSVに保存
-    prediction_db.to_csv("./evaluation/submit/predictions.csv", index=False)
+    prediction_db.to_csv("./evaluation/submit/predictions.csv", index=False, header=False)
 
 if __name__ == "__main__":
     main()
