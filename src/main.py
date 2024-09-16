@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+import ast
 from dotenv import load_dotenv 
 load_dotenv()  
 
@@ -8,6 +10,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQA
+from langchain import PromptTemplate
 
 # 1. 知識ベースの準備
 novel_lists = [
@@ -33,7 +36,7 @@ for novel in novel_lists:
     documents += novel_documents
 
 # テキストを小さなチャンクに分割
-text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=50, separator="\n")
+text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100, separator="\n")
 texts = text_splitter.split_documents(documents)
 
 # 各チャンクの先頭に小説タイトルを付与
@@ -55,7 +58,7 @@ llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7)
 # 4. RAGシステムの構築
 qa = RetrievalQA.from_chain_type(
     llm=llm,
-    chain_type="map_reduce",
+    chain_type="stuff",
     retriever=retriever,
 )
 
@@ -63,17 +66,35 @@ qa = RetrievalQA.from_chain_type(
 def rag_response(query):
     return qa.invoke(query)
 
-# 6. ユーザーからの入力を受け取り、AIの応答を表示
 def main():
-    print("質問を入力してください。終了するには 'exit' と入力してください。")
-    while True:
-        query = input("You: ")
-        if query.lower() in ['exit', 'quit', '終了']:
-            print("対話を終了します。")
-            break
-        response = rag_response(query)
-        print(f"AI: {response['result']}\n")
-        print(f"response: {response}\n")
+    question_db = pd.read_csv("./question/query.csv")
+    
+    # データを格納するためのリストを作成
+    data = {"index": [], "answer": [], "reason": []}
+    
+    for _, row in question_db.iterrows():
+        index = row['index']
+        problem = row['problem']
+        problem = problem + ' 50字以内で、回答のみ出力してください。'
+        
+        # RAGシステムの応答を取得
+        response = rag_response(problem)["result"]
+        response = response.replace("\n", "")
+
+        # 返答が50字を超える場合、50字以内にする.
+        if len(response) > 50:
+            response = response[:50]
+        
+        # データをリストに追加
+        data["index"].append(index)
+        data["answer"].append(response)
+        data["reason"].append("なし")
+    
+    # データをDataFrameに変換
+    prediction_db = pd.DataFrame(data)
+    
+    # CSVに保存
+    prediction_db.to_csv("./evaluation/submit/predictions.csv", index=False, header=False)
 
 if __name__ == "__main__":
     main()
