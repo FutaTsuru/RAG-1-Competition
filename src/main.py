@@ -31,7 +31,7 @@ for novel in novel_lists:
     documents += loader.load()
 
 # テキストを小さなチャンクに分割
-text_splitter = CharacterTextSplitter(chunk_size=200, chunk_overlap=50, separator="\n")
+text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100, separator="\n")
 texts = text_splitter.split_documents(documents)
 
 # 2. ベクトルストアの作成
