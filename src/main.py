@@ -67,6 +67,10 @@ def main():
         # RAGシステムの応答を取得
         response = rag_response(problem)["result"]
         response = response.replace("\n", "")
+
+        # 返答が50字を超える場合、50字以内にする.
+        if len(response) > 50:
+            response = response[:50]
         
         # データをリストに追加
         data["index"].append(index)
