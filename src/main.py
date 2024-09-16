@@ -70,7 +70,7 @@ def main():
         response = response.replace("\n", "")
 
         # 返答が50字を超える場合、50字以内にする.
-        if len(response) > 50:
+        if len(response) > 45:
             response = response[:45]
         
         # データをリストに追加
