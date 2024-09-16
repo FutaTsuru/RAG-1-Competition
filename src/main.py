@@ -71,7 +71,7 @@ def main():
 
         # 返答が50字を超える場合、50字以内にする.
         if len(response) > 50:
-            response = response[:50]
+            response = response[:45]
         
         # データをリストに追加
         data["index"].append(index)
