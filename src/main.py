@@ -44,8 +44,6 @@ for text in texts:
     title = text.metadata['title']
     text.page_content = f"{title}: {text.page_content}"
 
-print(texts[1000])
-
 # 2. ベクトルストアの作成
 embeddings = OpenAIEmbeddings()
 vectorstore = FAISS.from_documents(texts, embeddings)
