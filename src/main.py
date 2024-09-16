@@ -12,27 +12,37 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain import PromptTemplate
 
-novel_lists = ['カインの末裔.txt',
-               'サーカスの怪人.txt',
-               '芽生.txt',
-               '競漕.txt',
-               '死生に関するいくつかの断想.txt',
-               '小説　不如帰.txt',
-               '流行暗殺節.txt']
-
 # 1. 知識ベースの準備
+novel_lists = [
+    'カインの末裔.txt',
+    'サーカスの怪人.txt',
+    '芽生.txt',
+    '競漕.txt',
+    '死生に関するいくつかの断想.txt',
+    '小説　不如帰.txt',
+    '流行暗殺節.txt'
+]
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 documents = []
 
 for novel in novel_lists:
+    novel_title = novel.replace(".txt", "")
     file_path = os.path.join(script_dir, '..', 'novels', 'works', novel)
     loader = TextLoader(file_path, encoding='utf-8')
-    documents += loader.load()
+    novel_documents = loader.load()
+    novel_documents[0].metadata['title'] = novel_title  # タイトルをメタデータに追加
+    documents += novel_documents
 
 # テキストを小さなチャンクに分割
 text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100, separator="\n")
 texts = text_splitter.split_documents(documents)
+
+# 各チャンクの先頭に小説タイトルを付与
+for text in texts:
+    title = text.metadata['title']
+    text.page_content = f"{title}: {text.page_content}"
 
 # 2. ベクトルストアの作成
 embeddings = OpenAIEmbeddings()
