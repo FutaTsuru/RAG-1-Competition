@@ -71,7 +71,7 @@ llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7)
 # 4. RAGシステムの構築
 qa = RetrievalQA.from_chain_type(
     llm=llm,
-    chain_type="stuff",
+    chain_type="refine",
     retriever=retriever,
 )
 
