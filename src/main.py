@@ -59,8 +59,6 @@ for document in documents:
         document.page_content = f'{title}の全文: {document.page_content}'
         texts.append(document)
 
-print(texts[-1].page_content)
-
 # 2. ベクトルストアの作成
 embeddings = OpenAIEmbeddings()
 vectorstore = FAISS.from_documents(texts, embeddings)
