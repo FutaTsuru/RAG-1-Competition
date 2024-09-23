@@ -1,14 +1,14 @@
 import os
 from dotenv import load_dotenv 
-
+import pandas as pd
 from openai import OpenAI
 from langchain_core.documents.base import Document
 
-class DevideTextIntoParagraph:
+class DivideTextIntoParagraph:
     def __init__(self, documents):
         self.documents = documents
 
-    def devide_text(self):
+    def divide_text(self):
         load_dotenv()
 
         texts = []
@@ -21,9 +21,8 @@ class DevideTextIntoParagraph:
             "You are a language model tasked with dividing the given text into paragraphs. "
             "When dividing, pay special attention to the meaning and structure of the content, "
             "ensuring that each paragraph is coherent and logically grouped. "
-            "Each paragraph should contain at least 500 tokens, ensuring completeness and clarity."
+            "Each paragraph should contain at least 300 tokens, ensuring completeness and clarity."
         )
-
 
         for document in self.documents:
             text = document.page_content
@@ -32,7 +31,7 @@ class DevideTextIntoParagraph:
             user_prompt = f"Please divide the following text into meaningful paragraphs:\n\n{text}"
 
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o",  # 正しいモデル名に修正
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
@@ -44,10 +43,20 @@ class DevideTextIntoParagraph:
 
             paragraphs = divided_text.split("\n\n")
 
-            for i, paragraph in enumerate(paragraphs):
-                number = i+1
-                paragraph = f"{title}の{number}段落目: {paragraph}"
-                doc = Document(page_content=paragraph, metadata={"title" : title, "paragraph_number" : number})
-                texts.append(doc)
+            # スライディングウィンドウ方式で段落をペアにする
+            for i in range(len(paragraphs) - 1):
+                paragraph1 = paragraphs[i].strip()
+                paragraph2 = paragraphs[i + 1].strip()
+
+                if paragraph1 and paragraph2:
+                    combined_paragraph = f"{title}の{i+1}段落目と{i+2}段落目: {paragraph1}\n\n{paragraph2}"
+                    doc = Document(
+                        page_content=combined_paragraph,
+                        metadata={
+                            "title": title,
+                            "paragraph_numbers": f"{i+1}-{i+2}"
+                        }
+                    )
+                    texts.append(doc)
 
         return texts

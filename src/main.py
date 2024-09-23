@@ -12,7 +12,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain import PromptTemplate
 
-from createParagraph import DevideTextIntoParagraph
+from createParagraph import DivideTextIntoParagraph
 
 # 1. 知識ベースの準備
 novel_lists = [
@@ -38,17 +38,8 @@ for novel in novel_lists:
     documents += novel_documents
 
 # GPTによって分割された段落ごとにチャンクを作成
-create_paragraph = DevideTextIntoParagraph(documents)
-texts = create_paragraph.devide_text()
-
-# テキストを小さなチャンクに分割
-# text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=100, separator="\n")
-# texts = text_splitter.split_documents(documents)
-
-# 各チャンクの先頭に小説タイトルを付与
-# for text in texts:
-#     title = text.metadata['title']
-#     text.page_content = f"{title}: {text.page_content}"
+create_paragraph = DivideTextIntoParagraph(documents)
+texts = create_paragraph.divide_text()
 
 # 各小説の全文もベクトル化する。(gpt-4oが処理する最大トークンを超えそうな小説は分割する。)
 for document in documents:
