@@ -12,6 +12,8 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain import PromptTemplate
 
+SYSTEM_PROMPT_PATH = "./config/system_prompt.md"
+
 # 1. 知識ベースの準備
 novel_lists = [
     'カインの末裔.txt',
@@ -59,25 +61,33 @@ for document in documents:
         document.page_content = f'{title}の全文: {document.page_content}'
         texts.append(document)
 
-# 2. ベクトルストアの作成
 embeddings = OpenAIEmbeddings()
 vectorstore = FAISS.from_documents(texts, embeddings)
 
 retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 
-# 3. GPT-4モデルの準備
 llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7)
+
+with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
+        system_prompt = file.read()
+
+prompt = PromptTemplate(
+    template=system_prompt,
+    input_variables=["context", "question"],
+)
 
 # 4. RAGシステムの構築
 qa = RetrievalQA.from_chain_type(
     llm=llm,
     chain_type="stuff",
     retriever=retriever,
+    return_source_documents=True,
+    chain_type_kwargs={"prompt": prompt},
 )
 
 # 5. RAGシステムの使用
 def rag_response(query):
-    return qa.invoke(query)
+    return qa.invoke(query) 
 
 def main():
     question_db = pd.read_csv("./question/query.csv")
@@ -88,19 +98,20 @@ def main():
     for _, row in question_db.iterrows():
         index = row['index']
         problem = row['problem']
-        problem = problem + ' 50字以内で、回答のみ出力してください。'
         
         # RAGシステムの応答を取得
-        response = rag_response(problem)["result"]
-        response = response.replace("\n", "")
+        response = rag_response(problem)
+        reason = response["source_documents"]
+        result = response["result"].replace("\n", "")
 
-        # 返答が50字を超える場合、50字以内にする.
+        # 返答が50字を超える場合、45字以内にする.
         if len(response) > 45:
             response = response[:45]
         
         # データをリストに追加
         data["index"].append(index)
-        data["answer"].append(response)
+        data["answer"].append(result)
+        # data["reason"].append(reason)
         data["reason"].append("なし")
     
     # データをDataFrameに変換
