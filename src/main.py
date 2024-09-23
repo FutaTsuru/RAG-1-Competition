@@ -68,10 +68,20 @@ retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 
 llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7)
 
+# 質問に誤りがあるかどうかを判断するアルゴリズム
 with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
         system_prompt = file.read()
 
-prompt = PromptTemplate(
+judge_prompt = PromptTemplate(
+    template=system_prompt,
+    input_variables=["context", "question"],
+)
+
+# 質問への回答を生成するアルゴリズム
+with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
+        system_prompt = file.read()
+
+main_prompt = PromptTemplate(
     template=system_prompt,
     input_variables=["context", "question"],
 )
@@ -82,7 +92,7 @@ qa = RetrievalQA.from_chain_type(
     chain_type="stuff",
     retriever=retriever,
     return_source_documents=True,
-    chain_type_kwargs={"prompt": prompt},
+    chain_type_kwargs={"prompt": main_prompt},
 )
 
 # 5. RAGシステムの使用
