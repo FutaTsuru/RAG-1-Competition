@@ -12,7 +12,10 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain import PromptTemplate
 
-SYSTEM_PROMPT_PATH = "./config/system_prompt.md"
+from judge_question import JudgeQuestion
+
+JUDGE_PROMPT_PATH = "./config/judge_prompt.md"
+MAIN_PROMPT_PATH = "./config/main_prompt.md"
 
 # 1. 知識ベースの準備
 novel_lists = [
@@ -68,21 +71,14 @@ retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 
 llm = ChatOpenAI(model_name="gpt-4o", temperature=0.7)
 
-# 質問に誤りがあるかどうかを判断するアルゴリズム
-with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
-        system_prompt = file.read()
-
-judge_prompt = PromptTemplate(
-    template=system_prompt,
-    input_variables=["context", "question"],
-)
+judge_question = JudgeQuestion(llm, retriever, JUDGE_PROMPT_PATH)
 
 # 質問への回答を生成するアルゴリズム
-with open(SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
-        system_prompt = file.read()
+with open(MAIN_PROMPT_PATH, 'r', encoding='utf-8') as file:
+        main_system_prompt = file.read()
 
 main_prompt = PromptTemplate(
-    template=system_prompt,
+    template=main_system_prompt,
     input_variables=["context", "question"],
 )
 
@@ -108,21 +104,24 @@ def main():
     for _, row in question_db.iterrows():
         index = row['index']
         problem = row['problem']
+
+        pre_response = judge_question.judge_question(problem)
+
+        if "1" in pre_response["result"]:
+            data["index"].append(index)
+            data["answer"].append("質問誤り")
+            data["reason"].append("なし")
+            continue
         
-        # RAGシステムの応答を取得
+        # 回答を生成する
         response = rag_response(problem)
         reason = response["source_documents"]
         result = response["result"].replace("\n", "")
 
-        # 返答が50字を超える場合、45字以内にする.
-        if len(response) > 45:
-            response = response[:45]
-        
-        # データをリストに追加
         data["index"].append(index)
         data["answer"].append(result)
-        # data["reason"].append(reason)
         data["reason"].append("なし")
+        
     
     # データをDataFrameに変換
     prediction_db = pd.DataFrame(data)
