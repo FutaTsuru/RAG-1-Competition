@@ -6,11 +6,10 @@ def make_big_chunck(documents, chunk_size: int, chunk_overlap: int, separator: s
     """
     texts = []
     for document in documents:
-        max_words = 30000
         title = document.metadata['title']
         novel_length = len(document.page_content)
-        if novel_length > max_words:
-            novel_half_splitter = CharacterTextSplitter(chunk_size=max_words, chunk_overlap=100, separator="\n")
+        if novel_length > chunk_size:
+            novel_half_splitter = CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap, separator=separator)
             half_docs = novel_half_splitter.split_documents([document])
             for half_doc in half_docs:
                 half_doc.page_content = f'{title}の文章の大部分: {half_doc.page_content}'

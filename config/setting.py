@@ -13,7 +13,7 @@ small_chunck_overlap = 100
 small_chunck_separator = "\n"
 
 big_chunk_size = 30000
-big_chunck_overlap = 100
+big_chunck_overlap = 4000
 big_chunck_separator = "\n"
 
 
