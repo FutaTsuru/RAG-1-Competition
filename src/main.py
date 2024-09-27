@@ -21,7 +21,7 @@ texts = []
 texts += small_chunk.make_small_chunk(documents, setting.small_chunk_size, setting.small_chunck_overlap, setting.small_chunck_separator)
 
 # 各小説の全文もベクトル化する。(gpt-4oが処理する最大トークンを超えそうな小説は分割する。)
-texts += big_chunk.make_big_chunck(documents, setting.big_chunk_size, setting.big_chunck_overlap, setting.big_chunck_separator)
+# texts += big_chunk.make_big_chunck(documents, setting.big_chunk_size, setting.big_chunck_overlap, setting.big_chunck_separator)
 
 # 4. RAGシステムの構築
 qa = rag_setup.setup_rag(texts, setting.model, setting.temperature)

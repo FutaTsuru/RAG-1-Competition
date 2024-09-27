@@ -19,4 +19,4 @@ big_chunck_separator = "\n"
 
 
 model = "gpt-4o"
-temperature=0.7
+temperature=1
