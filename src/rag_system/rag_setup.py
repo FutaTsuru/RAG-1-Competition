@@ -10,7 +10,7 @@ def setup_rag(texts, model:str,temperature:float):
     embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_documents(texts, embeddings)
 
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+    retriever = vectorstore.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": .65})
 
     llm = ChatOpenAI(model_name=model, temperature=temperature)
 
