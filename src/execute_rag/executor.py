@@ -1,5 +1,6 @@
 import pandas as pd
 from tqdm import tqdm
+import re
 
 class executor:
     def __init__(self,qa) -> None:
@@ -13,6 +14,7 @@ class executor:
         # データを格納するためのリストを作成
         data = {"index": [], "answer": [], "reason": []}
         all_data = {"index": [], "answer": [], "reason": []}
+        reason_num_data = {"index": [], "answer": [], "reason_num": []}
         
         for _, row in tqdm(self.question_db.iterrows(), total=len(self.question_db), desc="回答生成"):
             index = row['index']
@@ -35,9 +37,15 @@ class executor:
             all_data["index"].append(index)
             all_data["answer"].append(result)
             all_data["reason"].append(reason)
+
+            reason_num_data["index"].append(index)
+            reason_num_data["answer"].append(result)
+            reason_num_data["reason_num"].append(len(reason))
         
         prediction_db = pd.DataFrame(data)
         prediction_contain_reason_db = pd.DataFrame(all_data)
+        prediction_contain_reason_num_db = pd.DataFrame(reason_num_data)
         
         prediction_db.to_csv("./evaluation/submit/predictions.csv", index=False, header=False)
         prediction_contain_reason_db.to_csv("./evaluation/submit/predictions_contain_reason.csv", index=False, header=False)
+        prediction_contain_reason_num_db.to_csv("./evaluation/submit/predictions_contain_reason_num.csv", index=False, header=False)
