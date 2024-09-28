@@ -20,7 +20,9 @@ SYSTEM_PROMPT_PATH = "./config/system_prompt.md"
 
 embedding_model = "text-embedding-ada-002"
 retrieval_num = 10
-similarity_threshold = 0.775
+# similarity_threshold = 0.775
+similarity_threshold = 0
+
 
 model = "gpt-4o"
 temperature=0.7

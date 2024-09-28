@@ -18,7 +18,7 @@ def get_embeddings(texts: List[str]) -> np.ndarray:
     embeddings = [data.embedding for data in response.data]
     return np.array(embeddings).astype('float32')
 
-def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = True) -> faiss.IndexFlatIP:
+def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = False) -> faiss.IndexFlatIP:
     if use_cosine:
         faiss.normalize_L2(embeddings)
         index = faiss.IndexFlatIP(embeddings.shape[1]) 
@@ -30,7 +30,7 @@ def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = True) -> faiss.
 def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[str], embeddings: np.ndarray) -> List[Tuple[str, float]]:
     query_embedding = get_embeddings([query])
 
-    faiss.normalize_L2(query_embedding)
+    # faiss.normalize_L2(query_embedding)
     
     similarities, indices = index.search(query_embedding, setting.retrieval_num)
     
@@ -44,6 +44,7 @@ def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[st
 def build_prompt(retrieved_chunk: List[str]) -> str:
     with open(setting.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
             system_prompt = file.read()
+    system_prompt = system_prompt.format(retrieved_chunk=retrieved_chunk)
     return system_prompt
 
 def generate_answer(system_prompt: str, query: str) -> str:

@@ -18,8 +18,6 @@ documents = document_importer.import_documents(novel_lists)
 # テキストを小さなチャンクに分割
 splited_texts = small_chunk.make_small_chunk(documents, setting.small_chunk_size, setting.small_chunck_overlap, setting.small_chunck_separator)
 
-print(len(splited_texts))
-
 # 5. RAGシステムの使用
 executor = executor(splited_texts)
 
