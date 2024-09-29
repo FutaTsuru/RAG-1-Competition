@@ -1,10 +1,13 @@
 import numpy as np
+from dotenv import load_dotenv
+import json
+from typing import List, Tuple
 from openai import OpenAI
 import faiss
-from dotenv import load_dotenv
-from typing import List, Tuple
 
 from config import setting
+from config.tools import tools_setting
+from config.tools import implementation
 
 load_dotenv()
 client = OpenAI()
@@ -45,17 +48,46 @@ def build_prompt(retrieved_chunk: List[str]) -> str:
     return system_prompt
 
 def generate_answer(system_prompt: str, query: str) -> str:
-    response = client.chat.completions.create(
-        model=setting.model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": query}
-        ],
-        temperature=setting.temperature,
-        n=1,
-        stop=None,
-    )
-    answer = response.choices[0].message.content
+    message = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": query}
+            ]
+    while True:
+        response = client.chat.completions.create(
+            model=setting.model,
+            messages=message,
+            temperature=setting.temperature,
+            tools=tools_setting.tools,
+            tool_call="auto",
+            n=1,
+            stop=None,
+        )
+
+        if response.choices[0].finish_reason != "tool_calls":
+            answer = response.choices[0].message.content
+            break
+        
+        tool_call = response.choices[0].message.tool_calls[0]
+        arguments = json.loads(tool_call['function']['arguments'])
+        argument_name = arguments.keys[0]
+        function_name = tool_call['function']['name']
+        function = getattr(implementation, function_name, None)
+
+        argument = arguments.get('argument_name')
+        chunk = function(argument)
+
+        function_call_result_message = {
+            "role": "tool",
+            "content": json.dumps({
+                f"{argument_name}": argument,
+                "information": chunk
+            }),
+            "tool_call_id": response['choices'][0]['message']['tool_calls'][0]['id']
+        }
+
+        message.append(response['choices'][0]['message'])
+        message.append(function_call_result_message)
+
     return answer
 
 def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray):
