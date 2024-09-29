@@ -8,7 +8,6 @@ sys.path.append(parent_dir)
 from config import setting
 from make_chunk import document_importer
 from make_chunk import small_chunk
-from make_chunk import big_chunk
 from execute_rag.executor import executor
 
 # 1. 知識ベースの準備

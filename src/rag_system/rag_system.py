@@ -1,4 +1,3 @@
-import os
 import numpy as np
 from openai import OpenAI
 import faiss
@@ -29,8 +28,6 @@ def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = False) -> faiss
 
 def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[str], embeddings: np.ndarray) -> List[Tuple[str, float]]:
     query_embedding = get_embeddings([query])
-
-    # faiss.normalize_L2(query_embedding)
     
     similarities, indices = index.search(query_embedding, setting.retrieval_num)
     
