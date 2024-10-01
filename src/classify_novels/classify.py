@@ -1,9 +1,14 @@
 from openai import OpenAI
-client = OpenAI()
 from dotenv import load_dotenv
 load_dotenv()
-from config import setting
 import os
+import sys
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(parent_dir)
+from config import setting
+
+
+client = OpenAI()
 
 system_prompt = """私は７つの小説に関する60の質問をもっていますが，どの質問がどの小説に関するものかを把握していません．
                     そこで，llmとrag技術を用いて質問がどの小説に関するものであるかを分類するシステムを構築しています．
@@ -11,8 +16,10 @@ system_prompt = """私は７つの小説に関する60の質問をもってい�
                     あなたには，要約を作成する手伝いを指定もらいます．要約は設問の分類に使用することを考慮してください．特に以下の点に注意してください
                     ・出力は　特徴：~ 要約:~ という形式で出力してください．
                     ・特徴には質問を分類するのに有用であると考えられる小説の特徴や単語を記してください．例えば登場人物の名前や地名などの固有名詞，小説のジャンルや舞台，時代背景などが考えられます．
+                    ・人の名前と地名が出てきた場合は，重要度に関係なく必ず記載してください．
                     ・要約には小説の内容を簡潔にまとめてください．こちらでも固有名詞などはなるべくそのまま記載してください．
-                    ・要約は2000文字以内でお願いします． """
+                    ・要約は4000文字以内でお願いします．
+                    ・文章によっては，1,2,3,等と区切られて複数の内容が含まれていることがあります．その場合は，特徴，要約はまとめて結構ですが，すべての文章の特徴と要約が入るようにしてください """
 
 next_prompt_part1 = """文章が長いので分割しています．
                     ここまでの内容は次のようなものでした．
@@ -31,7 +38,7 @@ def read_file(file_path):
 
 def write_output(output, output_path="output.txt"):
     """出力をファイルに書き込む"""
-    with open(output_path, 'a', encoding='utf-8') as file:
+    with open(output_path, 'w', encoding='utf-8') as file:
         file.write(output + "\n")
 
 def gpt4_response(prompt):
@@ -66,8 +73,8 @@ def process_large_prompt(prompt, max_length=25000):
 
 if __name__ == "__main__":
     for novel in setting.novel_lists:
-        # ファイルパスを指定（同一ディレクトリにあるファイル）
-        file_path = os.path.join(script_dir, '..', 'novels', 'works', novel)
+        # ファイルパスを指定
+        file_path = os.path.join(script_dir, '..', '..', 'novels', 'works', novel)
         
         # ファイルから文章を読み込み
         prompt = read_file(file_path)
@@ -83,6 +90,7 @@ if __name__ == "__main__":
             output = gpt4_response(part)
             
             # 出力をファイルに保存
-        write_output(output)
+        file_path = os.path.join(script_dir, '..', '..', 'storage', 'summarize', novel)
+        write_output(output,file_path)
     
-    print("処理が完了しました。結果はoutput.txtに保存されました。")
+    print("処理が完了しました。結果はsummarizeに保存されました。")
