@@ -17,6 +17,17 @@ def get_embeddings(texts: List[str]) -> np.ndarray:
     embeddings = [data.embedding for data in response.data]
     return np.array(embeddings).astype('float32')
 
+def make_and_save_embeddings(texts: List[str], save_path) -> np.ndarray:
+    response = client.embeddings.create(
+        input=texts,
+        model=setting.embedding_model
+    )
+    embeddings = [data.embedding for data in response.data]
+
+    embeddings_array = np.array(embeddings).astype('float32')
+    np.save(save_path, embeddings_array)
+
+
 def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = False) -> faiss.IndexFlatIP:
     if use_cosine:
         faiss.normalize_L2(embeddings)

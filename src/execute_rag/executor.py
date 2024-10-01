@@ -1,7 +1,9 @@
 import pandas as pd
 from tqdm import tqdm
+import numpy as np
 
 from rag_system import rag_system
+from config import setting
 
 class executor:
     def __init__(self, splited_texts) -> None:
@@ -13,7 +15,10 @@ class executor:
         all_data = {"index": [], "answer": [], "reason": []}
         reason_num_data = {"index": [], "answer": [], "reason_num": []}
 
-        embeddings = rag_system.get_embeddings(self.splited_texts)
+        # 指定したテキストをベクトル化して、指定した保存先に保存する関数
+        # rag_system.make_and_save_embeddings(self.splited_texts, setting.CHUNK_EMBEDDINGS_PATH)
+
+        embeddings = np.load(setting.CHUNK_EMBEDDINGS_PATH)
         
         for _, row in tqdm(self.question_db.iterrows(), total=len(self.question_db), desc="回答生成"):
             index = row['index']
