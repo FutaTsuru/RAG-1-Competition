@@ -5,8 +5,10 @@ import faiss
 import setting
 from ...src.rag_system import rag_system
 
-def retrieve_chunks_by_keyword(keyword: str, chunks: List[str], num: int)-> str:
+def retrieve_chunks_by_keyword(keyword: str, chunks: List[str])-> str:
     filtered_chunks = [chunk for chunk in chunks if keyword in chunk]
+    if len(filtered_chunks) > 10:
+        print(f"{len(filtered_chunks)}個のチャンクを追加しました。かなり多いです、気をつけてください!")
     response = ""
     for i in range(len(filtered_chunks)):
         response += f"キーワード検索でヒットした{i+1}番目の文章: '{filtered_chunks[i]}'\n"

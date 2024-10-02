@@ -82,7 +82,7 @@ def generate_answer(system_prompt: str, query: str, chunks: List[str], index: fa
         arguments = json.loads(tool_call['function']['arguments'])
         function_name = tool_call['function']['name']
         if function_name == "retrieve_chunks_by_keyword":
-            function_calling_response += implementation.retrieve_chunks_by_keyword(arguments["keyword"], chunks, arguments["retrieval_num"])
+            function_calling_response += implementation.retrieve_chunks_by_keyword(arguments["keyword"], chunks)
 
         elif function_name == "get_keyword_counts":
             function_calling_response += implementation.get_keyword_counts(arguments["keyword"], target_text)

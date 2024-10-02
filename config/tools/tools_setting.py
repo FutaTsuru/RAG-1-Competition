@@ -5,7 +5,7 @@ tools = [
         "type": "function",
         "function": {
             "name": "retrieve_chunks_by_keyword",
-            "description": "指定したkeywordを含むチャンクを抽出する関数。ユーザーからの質問に答える際に重要な単語があり、その単語が含まれるチャンクが回答生成時に必要だと判断した際に呼び出されるべき関数です。",
+            "description": "指定したkeywordを含むチャンクを抽出する関数。ユーザーからの質問に答える際に重要な単語があり、その単語が含まれるチャンクが回答生成時に必要だと判断した際に呼び出されるべき関数です。特に人名や地名など、その文章特有の固有名詞が質問文に含まれる場合は有効かもしれません。",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -13,12 +13,8 @@ tools = [
                         "type": "string",
                         "description": "回答生成時に最も重要だと判断した単語。ユーザーの質問文に含まれても、Assistantが重要だと考える単語を生成してもよい。",
                     },
-                    "retrieval_num":{
-                        "type": "int",
-                        "description": "抽出するチャンクの最大数を指定する.",
-                    }
                 },
-                "required": ["keyword", "retrieval_num"],
+                "required": ["keyword"],
                 "additionalProperties": False,
             },
         },
