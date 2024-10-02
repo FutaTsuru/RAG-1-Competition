@@ -37,7 +37,7 @@ def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = False) -> faiss
 def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[str]) -> List[Tuple[str, float]]:
     query_embedding = get_embeddings([query])
     
-    similarities, indices = index.search(query_embedding, setting.retrieval_num)
+    similarities, indices = index.search(query_embedding, setting.similarrity_retrieval_num)
     
     results = []
     for idx, sim in zip(indices[0], similarities[0]):
@@ -54,15 +54,16 @@ def build_prompt(retrieved_chunk: List[str]) -> str:
     chunk_str = ""
     for i in range(len(retrieved_chunk)):
         chunk_str += f"{i+1}つ目: '{retrieved_chunk[i]}'\n"
-    system_prompt = system_prompt.format(retrieved_chunk=chunk_str)
+    system_prompt = system_prompt.format(retrieved_chunk=chunk_str, function_calling_response="")
     return system_prompt
 
-def generate_answer(system_prompt: str, query: str) -> str:
-    message = [
+def generate_answer(system_prompt: str, query: str, chunks: List[str], index: faiss.IndexFlatIP, target_text) -> str:
+    function_calling_response = ""
+    while True:
+        message = [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": query}
             ]
-    while True:
         response = client.chat.completions.create(
             model=setting.model,
             messages=message,
@@ -79,36 +80,41 @@ def generate_answer(system_prompt: str, query: str) -> str:
         
         tool_call = response.choices[0].message.tool_calls[0]
         arguments = json.loads(tool_call['function']['arguments'])
-        argument_name = arguments.keys[0]
         function_name = tool_call['function']['name']
-        function = getattr(implementation, function_name, None)
+        if function_name == "retrieve_chunks_by_keyword":
+            function_calling_response += implementation.retrieve_chunks_by_keyword(arguments["keyword"], chunks, arguments["retrieval_num"])
 
-        argument = arguments.get('argument_name')
-        chunk = function(argument)
+        elif function_name == "get_keyword_counts":
+            function_calling_response += implementation.get_keyword_counts(arguments["keyword"], target_text)
+        
+        # elif function_name == "retrieve_similar_chunks":
+        #     function_calling_response += implementation.retrieve_similar_chunks(query, index, chunks, arguments["retrieval_num"])
 
         function_call_result_message = {
             "role": "tool",
             "content": json.dumps({
-                f"{argument_name}": argument,
-                "information": chunk
+                "arguments": arguments,
+                "information": function_calling_response
             }),
             "tool_call_id": response['choices'][0]['message']['tool_calls'][0]['id']
         }
+
+        system_prompt.format(function_calling_response=function_calling_response)
 
         message.append(response['choices'][0]['message'])
         message.append(function_call_result_message)
 
     return answer
 
-def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray):
+def run_rag_system(query: str, chunks: List[str], embeddings: np.ndarray, target_text: str):
     index = build_faiss_index(embeddings)
 
-    retrieved_chunks_with_scores = retrieve_similar_chunks(query, index, texts)
+    retrieved_chunks_with_scores = retrieve_similar_chunks(query, index, chunks)
 
     retrieved_chunks = [chunk for chunk, score, idx in retrieved_chunks_with_scores]
 
     system_prompt = build_prompt(retrieved_chunks)
 
-    answer = generate_answer(system_prompt, query)
+    answer = generate_answer(system_prompt, query, chunks, index, target_text)
 
     return answer, retrieved_chunks

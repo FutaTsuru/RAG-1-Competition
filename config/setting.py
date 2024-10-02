@@ -21,7 +21,7 @@ CHUNK_PATH = "./storage/chunk/chunk_info.csv"
 CHUNK_EMBEDDINGS_PATH = './storage/embeddings/chunk_embeddings.npy'
 
 embedding_model = "text-embedding-ada-002"
-retrieval_num = 10
+similarrity_retrieval_num = 5
 # similarity_threshold = 0.775
 similarity_threshold = 0
 

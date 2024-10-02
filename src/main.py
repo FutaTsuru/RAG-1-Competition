@@ -22,7 +22,7 @@ documents = document_importer.import_documents(novel_lists)
 splited_texts_db = pd.read_csv(setting.CHUNK_PATH)
 
 # 5. RAGシステムの使用
-executor = executor(splited_texts_db)
+executor = executor(splited_texts_db, documents)
 
 if __name__ == "__main__":
     executor.run()

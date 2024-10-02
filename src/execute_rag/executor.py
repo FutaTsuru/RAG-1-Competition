@@ -6,9 +6,10 @@ from rag_system import rag_system
 from config import setting
 
 class executor:
-    def __init__(self, splited_texts_db: pd.DataFrame) -> None:
+    def __init__(self, splited_texts_db: pd.DataFrame, documents) -> None:
         self.splited_texts_db = splited_texts_db
         self.question_db = pd.read_csv("./question/query.csv")
+        self.documents = documents
     
     def run(self):
         data = {"index": [], "answer": [], "reason": []}
@@ -29,11 +30,14 @@ class executor:
             
             # RAGシステムの応答を取得 (質問と小説を紐づけられたら、引数のsplited_textsはその分縮小して渡す！)
             # title = connect_query_to_novel()
+            # for document in self.documents:
+            #     if document.metadata["title"] == title:
+            #         target_text = document.page_content
             # target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
             # index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
             # target_embeddings = np.take(embeddings, index_list, axis=0)
             # answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings)
-            answer, reason = rag_system.run_rag_system(query, splited_texts, embeddings)
+            answer, reason = rag_system.run_rag_system(query, splited_texts, embeddings, target_text)
             answer = answer.replace("\n", "")
             
             # データをリストに追加
