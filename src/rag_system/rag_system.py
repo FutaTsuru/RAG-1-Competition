@@ -39,14 +39,19 @@ def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[st
     results = []
     for idx, sim in zip(indices[0], similarities[0]):
         if sim >= setting.similarity_threshold:
-            results.append((texts[idx], sim))
-    
+            results.append((texts[idx], sim, idx))
+
+    # 時系列順に並び替える
+    results.sort(key=lambda x: x[2])
     return results
 
 def build_prompt(retrieved_chunk: List[str]) -> str:
     with open(setting.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
             system_prompt = file.read()
-    system_prompt = system_prompt.format(retrieved_chunk=retrieved_chunk)
+    chunk_str = ""
+    for i in range(len(retrieved_chunk)):
+        chunk_str += f"{i+1}つ目: '{retrieved_chunk[i]}'\n"
+    system_prompt = system_prompt.format(retrieved_chunk=chunk_str)
     return system_prompt
 
 def generate_answer(system_prompt: str, query: str) -> str:
@@ -68,7 +73,7 @@ def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray):
 
     retrieved_chunks_with_scores = retrieve_similar_chunks(query, index, texts, embeddings)
 
-    retrieved_chunks = [chunk for chunk, score in retrieved_chunks_with_scores]
+    retrieved_chunks = [chunk for chunk, score, idx in retrieved_chunks_with_scores]
 
     system_prompt = build_prompt(retrieved_chunks)
 
