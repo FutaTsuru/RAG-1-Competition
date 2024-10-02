@@ -34,7 +34,7 @@ def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = False) -> faiss
     index.add(embeddings)
     return index
 
-def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[str], embeddings: np.ndarray) -> List[Tuple[str, float]]:
+def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[str]) -> List[Tuple[str, float]]:
     query_embedding = get_embeddings([query])
     
     similarities, indices = index.search(query_embedding, setting.retrieval_num)
@@ -103,7 +103,7 @@ def generate_answer(system_prompt: str, query: str) -> str:
 def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray):
     index = build_faiss_index(embeddings)
 
-    retrieved_chunks_with_scores = retrieve_similar_chunks(query, index, texts, embeddings)
+    retrieved_chunks_with_scores = retrieve_similar_chunks(query, index, texts)
 
     retrieved_chunks = [chunk for chunk, score, idx in retrieved_chunks_with_scores]
 
