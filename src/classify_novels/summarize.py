@@ -6,6 +6,7 @@ import sys
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.append(parent_dir)
 from config import setting
+from tqdm import tqdm
 
 
 client = OpenAI()
@@ -16,7 +17,8 @@ system_prompt = """私は７つの小説に関する60の質問をもってい�
                     あなたには，要約を作成する手伝いを指定もらいます．要約は設問の分類に使用することを考慮してください．特に以下の点に注意してください
                     ・出力は　特徴：~ 要約:~ という形式で出力してください．
                     ・特徴には質問を分類するのに有用であると考えられる小説の特徴や単語を記してください．例えば登場人物の名前や地名などの固有名詞，小説のジャンルや舞台，時代背景などが考えられます．
-                    ・人の名前と地名が出てきた場合は，重要度に関係なく必ず記載してください．
+                    ・文章中に出てきた人物名，地名はどのような場合であっても必ず出力に含めてください．．
+                    ・人物名でなくても特定の人を指す単語は必ず含めるようにしてください．例えば老婆，少年など．
                     ・要約には小説の内容を簡潔にまとめてください．こちらでも固有名詞などはなるべくそのまま記載してください．
                     ・要約は4000文字以内でお願いします．
                     ・文章によっては，1,2,3,等と区切られて複数の内容が含まれていることがあります．その場合は，特徴，要約はまとめて結構ですが，すべての文章の特徴と要約が入るようにしてください """
@@ -72,7 +74,8 @@ def process_large_prompt(prompt, max_length=25000):
     return parts
 
 if __name__ == "__main__":
-    for novel in setting.novel_lists:
+    for novel in tqdm(setting.novel_lists, desc="Processing summary", unit="file"):
+        novel_title = novel.replace(".txt", "")
         # ファイルパスを指定
         file_path = os.path.join(script_dir, '..', '..', 'novels', 'works', novel)
         
@@ -90,6 +93,7 @@ if __name__ == "__main__":
             output = gpt4_response(part)
             
             # 出力をファイルに保存
+        output = f"小説のタイトル：{novel_title}\n\n{output}"
         file_path = os.path.join(script_dir, '..', '..', 'storage', 'summarize', novel)
         write_output(output,file_path)
     
