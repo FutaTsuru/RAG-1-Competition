@@ -18,10 +18,11 @@ documents = document_importer.import_documents(novel_lists)
 # テキストを小さなチャンクに分割して保存する関数
 # small_chunk.make_and_save_small_chunk(documents, setting.small_chunk_size, setting.small_chunck_overlap, setting.small_chunck_separator)
 
-splited_texts = pd.read_csv(setting.CHUNK_PATH).iloc[:, 0].tolist()
+# 分割したチャンクが格納されているcsvファイルの読み込み
+splited_texts_db = pd.read_csv(setting.CHUNK_PATH)
 
 # 5. RAGシステムの使用
-executor = executor(splited_texts)
+executor = executor(splited_texts_db)
 
 if __name__ == "__main__":
     executor.run()

@@ -6,8 +6,8 @@ from rag_system import rag_system
 from config import setting
 
 class executor:
-    def __init__(self, splited_texts) -> None:
-        self.splited_texts = splited_texts
+    def __init__(self, splited_texts_db: pd.DataFrame) -> None:
+        self.splited_texts_db = splited_texts_db
         self.question_db = pd.read_csv("./question/query.csv")
     
     def run(self):
@@ -15,17 +15,25 @@ class executor:
         all_data = {"index": [], "answer": [], "reason": []}
         reason_num_data = {"index": [], "answer": [], "reason_num": []}
 
-        # 指定したテキストをベクトル化して、指定した保存先に保存する関数
-        # rag_system.make_and_save_embeddings(self.splited_texts, setting.CHUNK_EMBEDDINGS_PATH)
+        splited_texts = self.splited_texts_db["chunk"].to_list()
 
+        # 指定したテキストをベクトル化して、指定した保存先に保存する関数
+        # rag_system.make_and_save_embeddings(splited_texts, setting.CHUNK_EMBEDDINGS_PATH)
+
+        # チャンクのベクトルを読み込む
         embeddings = np.load(setting.CHUNK_EMBEDDINGS_PATH)
         
         for _, row in tqdm(self.question_db.iterrows(), total=len(self.question_db), desc="回答生成"):
             index = row['index']
             query = row['problem']
             
-            # RAGシステムの応答を取得
-            answer, reason = rag_system.run_rag_system(query, self.splited_texts, embeddings)
+            # RAGシステムの応答を取得 (質問と小説を紐づけられたら、引数のsplited_textsはその分縮小して渡す！)
+            # title = connect_query_to_novel()
+            # target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
+            # index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
+            # target_embeddings = np.take(embeddings, index_list, axis=0)
+            # answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings)
+            answer, reason = rag_system.run_rag_system(query, splited_texts, embeddings)
             answer = answer.replace("\n", "")
             
             # データをリストに追加
