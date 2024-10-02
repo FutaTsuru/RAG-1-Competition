@@ -29,7 +29,7 @@ def build_faiss_index(embeddings: np.ndarray, use_cosine: bool = False) -> faiss
 def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[str], embeddings: np.ndarray) -> List[Tuple[str, float]]:
     query_embedding = get_embeddings([query])
     
-    similarities, indices = index.search(query_embedding, setting.retrieval_num)
+    similarities, indices = index.search(query_embedding, setting.classify_retrieval_num)
     
     results = []
     for idx, sim in zip(indices[0], similarities[0]):
@@ -39,9 +39,9 @@ def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[st
     return results
 
 def build_prompt(retrieved_chunk: List[str]) -> str:
-    with open(setting.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
+    with open(setting.CLASSIFY_SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
             system_prompt = file.read()
-    system_prompt = system_prompt.format(retrieved_chunk=retrieved_chunk)
+    system_prompt = system_prompt.format(retrieved_chunk=retrieved_chunk, novels=setting.novel_lists)
     return system_prompt
 
 def generate_answer(system_prompt: str, query: str) -> str:

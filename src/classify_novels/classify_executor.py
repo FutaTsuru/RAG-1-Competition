@@ -1,7 +1,7 @@
 import pandas as pd
 from tqdm import tqdm
 
-from rag_system import rag_system
+import classify_rag_system as rag_system
 
 class executor:
     def __init__(self, splited_texts) -> None:
@@ -10,8 +10,6 @@ class executor:
     
     def run(self):
         data = {"index": [], "answer": [], "reason": []}
-        all_data = {"index": [], "answer": [], "reason": []}
-        reason_num_data = {"index": [], "answer": [], "reason_num": []}
 
         embeddings = rag_system.get_embeddings(self.splited_texts)
         
@@ -26,20 +24,9 @@ class executor:
             # データをリストに追加
             data["index"].append(index)
             data["answer"].append(answer)
-            data["reason"].append("なし")
+            data["reason"].append(reason)
+            print(answer)
 
-            all_data["index"].append(index)
-            all_data["answer"].append(answer)
-            all_data["reason"].append(reason)
-
-            reason_num_data["index"].append(index)
-            reason_num_data["answer"].append(answer)
-            reason_num_data["reason_num"].append(len(reason))
-        
         prediction_db = pd.DataFrame(data)
-        prediction_contain_reason_db = pd.DataFrame(all_data)
-        prediction_contain_reason_num_db = pd.DataFrame(reason_num_data)
         
-        prediction_db.to_csv("./evaluation/submit/predictions.csv", index=False, header=False)
-        prediction_contain_reason_db.to_csv("./evaluation/submit/predictions_contain_reason.csv", index=False, header=False)
-        prediction_contain_reason_num_db.to_csv("./evaluation/submit/predictions_contain_reason_num.csv", index=False, header=False)
+        prediction_db.to_csv("./storage/classify/classify.csv", index=False, header=False)
