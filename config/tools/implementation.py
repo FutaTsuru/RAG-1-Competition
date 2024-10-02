@@ -1,0 +1,1 @@
+# ここにFunctionCallingで呼び出される関数を羅列する。
