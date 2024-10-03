@@ -3,6 +3,7 @@ from tqdm import tqdm
 import numpy as np
 
 from rag_system import rag_system
+from classify_novels.Title_teller import Title_teller
 from config import setting
 
 class executor:
@@ -23,21 +24,27 @@ class executor:
 
         # チャンクのベクトルを読み込む
         embeddings = np.load(setting.CHUNK_EMBEDDINGS_PATH)
+
+        title_teller = Title_teller()
         
         for _, row in tqdm(self.question_db.iterrows(), total=len(self.question_db), desc="回答生成"):
             index = row['index']
             query = row['problem']
             
             # RAGシステムの応答を取得 (質問と小説を紐づけられたら、引数のsplited_textsはその分縮小して渡す！)
-            # title = connect_query_to_novel()
-            # for document in self.documents:
-            #     if document.metadata["title"] == title:
-            #         target_text = document.page_content
-            # target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
-            # index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
-            # target_embeddings = np.take(embeddings, index_list, axis=0)
-            # answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_texts)
-            answer, reason = rag_system.run_rag_system(query, splited_texts, embeddings, target_text)
+            title = title_teller.connect_query_to_novel(index) # ここ引数indexでお願いしますby 進
+            if title != "分かりません":
+                for document in self.documents:
+                    if document.metadata["title"] == title:
+                        target_text = document.page_content
+                target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
+                index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
+                target_embeddings = np.take(embeddings, index_list, axis=0)  
+            else:
+                target_splited_texts = splited_texts
+                target_embeddings = embeddings
+
+            answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_text)
             answer = answer.replace("\n", "")
             
             # データをリストに追加
