@@ -7,10 +7,10 @@ from config import setting
 
 class Title_teller:
     def __init__(self) -> None:
-        self.df = pd.read_csv(setting.classify_csv_path)
+        self.df = pd.read_csv(setting.classify_csv_path, header=None)
 
     def connect_query_to_novel(self, index: int) -> str:
-        raw_title = self.df.iloc[index-1][1]
+        raw_title = self.df.iloc[index-1, 1]
         title = ""
         for ti in setting.novel_lists:
             checker = ti.replace(".txt", "")

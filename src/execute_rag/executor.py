@@ -31,14 +31,16 @@ class executor:
             query = row['problem']
             
             # RAGシステムの応答を取得 (質問と小説を紐づけられたら、引数のsplited_textsはその分縮小して渡す！)
-            # title = title_teller.connect_query_to_novel(index) # ここ引数indexでお願いしますby 進
-            # if title != "分かりません":
-                # target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
-                # index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
-                # target_embeddings = np.take(embeddings, index_list, axis=0)
-                # answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings)
-            # else:
-            answer, reason = rag_system.run_rag_system(query, splited_texts, embeddings)
+            title = title_teller.connect_query_to_novel(index) # ここ引数indexでお願いしますby 進
+            if title != "分かりません":
+                target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
+                index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
+                target_embeddings = np.take(embeddings, index_list, axis=0)  
+            else:
+                target_splited_texts = splited_texts
+                target_embeddings = embeddings
+
+            answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings)
             answer = answer.replace("\n", "")
             
             # データをリストに追加
