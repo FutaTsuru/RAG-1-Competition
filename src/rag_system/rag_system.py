@@ -90,6 +90,8 @@ def generate_answer(system_prompt: str, query: str, chunks: List[str], index: fa
         # elif function_name == "retrieve_similar_chunks":
         #     function_calling_response += implementation.retrieve_similar_chunks(query, index, chunks, arguments["retrieval_num"])
 
+        print(f"質問: {query}\nkeyword: {arguments["keyword"]}\nFunction: {function_name}")
+        
         function_call_result_message = {
             "role": "tool",
             "content": json.dumps({

@@ -41,6 +41,9 @@ class executor:
                 index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
                 target_embeddings = np.take(embeddings, index_list, axis=0)  
             else:
+                target_text = ""
+                for document in self.documents:
+                    target_text += document.page_content
                 target_splited_texts = splited_texts
                 target_embeddings = embeddings
 
