@@ -36,7 +36,7 @@ class executor:
             # target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
             # index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
             # target_embeddings = np.take(embeddings, index_list, axis=0)
-            # answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings)
+            # answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_texts)
             answer, reason = rag_system.run_rag_system(query, splited_texts, embeddings, target_text)
             answer = answer.replace("\n", "")
             
