@@ -21,6 +21,8 @@ title_filter_dict = {
     "流行暗殺節": "流行暗殺節"
 }
 #
+ANALYZE_SYSTEM_PROMPT_PATH = "./config/analysis_system_prompt.md"
+KEYWORD_PATH = "./storage/keyword/keyword.csv"
 
 small_chunk_size = 500
 small_chunck_overlap = 100
