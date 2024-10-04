@@ -17,8 +17,12 @@ class Keyword_teller:
         related_word = (self.df.iloc[index-1, 2].split(" "))
         return related_word
     
+    def connect_query_to_important_word(self, index: int) -> str:
+        important_word = self.df.iloc[index-1, 3]
+        return important_word
+    
 
 if __name__ == "__main__":
     keyword_teller = Keyword_teller()
     for i in range(1, 61):
-        print(f"{i}:{keyword_teller.connect_query_to_keyword(i)},{keyword_teller.connect_query_to_related_word(i)}")
+        print(f"{i}:{keyword_teller.connect_query_to_keyword(i)},{keyword_teller.connect_query_to_related_word(i)}, {keyword_teller.connect_query_to_important_word(i)}")
