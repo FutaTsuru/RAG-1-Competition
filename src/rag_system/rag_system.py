@@ -54,33 +54,44 @@ def build_prompt(retrieved_chunk: List[str]) -> str:
     chunk_str = ""
     for i in range(len(retrieved_chunk)):
         chunk_str += f"{i+1}つ目: '{retrieved_chunk[i]}'\n"
-    system_prompt = system_prompt.format(retrieved_chunk=chunk_str, function_calling_response="")
+    system_prompt = system_prompt.format(retrieved_chunk=chunk_str, function_calling_response="", function_list=tools_setting.function_list)
     return system_prompt
 
 def generate_answer(system_prompt: str, query: str, chunks: List[str], index: faiss.IndexFlatIP, target_text) -> str:
     function_calling_response = ""
+    tools = tools_setting.tools.copy()
+    function_list = tools_setting.function_list.copy()
     while True:
         message = [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": query}
             ]
-        response = client.chat.completions.create(
-            model=setting.model,
-            messages=message,
-            temperature=setting.temperature,
-            tools=tools_setting.tools,
-            tool_call="auto",
-            n=1,
-            stop=None,
-        )
+        if len(tools) > 0:
+            response = client.chat.completions.create(
+                model=setting.model,
+                messages=message,
+                temperature=setting.temperature,
+                tools=tools,
+                # tool_calls="auto",
+                n=1,
+                stop=None,
+            )
+        else:
+            response = client.chat.completions.create(
+                model=setting.model,
+                messages=message,
+                temperature=setting.temperature,
+                n=1,
+                stop=None,
+            )
 
         if response.choices[0].finish_reason != "tool_calls":
             answer = response.choices[0].message.content
             break
         
         tool_call = response.choices[0].message.tool_calls[0]
-        arguments = json.loads(tool_call['function']['arguments'])
-        function_name = tool_call['function']['name']
+        arguments = json.loads(tool_call.function.arguments)
+        function_name = tool_call.function.name
         if function_name == "retrieve_chunks_by_keyword":
             function_calling_response += implementation.retrieve_chunks_by_keyword(arguments["keyword"], chunks)
 
@@ -90,20 +101,24 @@ def generate_answer(system_prompt: str, query: str, chunks: List[str], index: fa
         # elif function_name == "retrieve_similar_chunks":
         #     function_calling_response += implementation.retrieve_similar_chunks(query, index, chunks, arguments["retrieval_num"])
 
-        print(f"質問: {query}\nkeyword: {arguments["keyword"]}\nFunction: {function_name}")
-        
+        tools = tools_setting.remove_tool_by_function_name(tools, function_name)
+        function_list.remove(function_name)
+
+        print(f"質問: {query}\nkeyword: {arguments["keyword"]}\nFunction: {function_name}\nanswer: {function_calling_response}")
+
         function_call_result_message = {
             "role": "tool",
             "content": json.dumps({
                 "arguments": arguments,
                 "information": function_calling_response
             }),
-            "tool_call_id": response['choices'][0]['message']['tool_calls'][0]['id']
+            "tool_call_id": response.choices[0].message.tool_calls[0].id
         }
 
         system_prompt.format(function_calling_response=function_calling_response)
+        system_prompt.format(function_list=function_list)
 
-        message.append(response['choices'][0]['message'])
+        message.append(response.choices[0].message)
         message.append(function_call_result_message)
 
     return answer

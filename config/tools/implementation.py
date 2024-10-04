@@ -2,8 +2,8 @@ import numpy as np
 from typing import List, Tuple
 import faiss
 
-import setting
-from ...src.rag_system import rag_system
+from config import setting
+from src.rag_system import rag_system
 
 def retrieve_chunks_by_keyword(keyword: str, chunks: List[str])-> str:
     filtered_chunks = [chunk for chunk in chunks if keyword in chunk]
@@ -16,11 +16,7 @@ def retrieve_chunks_by_keyword(keyword: str, chunks: List[str])-> str:
     return response
     
 def get_keyword_counts(keyword: str, text: str)-> str:
-    count = 0
-    words = text.split()
-    for word in words:
-        if word == keyword:
-            count += 1
+    count = text.count(keyword)
 
     response = f"'{keyword}'の出現回数は{count}回です。\n"
     return response
