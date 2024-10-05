@@ -20,6 +20,9 @@ title_filter_dict = {
     "小説　不如帰": "不如帰",
     "流行暗殺節": "流行暗殺節"
 }
+#
+ANALYZE_SYSTEM_PROMPT_PATH = "./config/analysis_system_prompt.md"
+KEYWORD_PATH = "./storage/keyword/keyword.csv"
 
 summary_csv_path = "./storage/summarize/"
 
