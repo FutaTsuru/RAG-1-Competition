@@ -39,11 +39,11 @@ class executor:
                 target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
                 index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
                 target_embeddings = np.take(embeddings, index_list, axis=0)  
-                target_summary = summary_teller.connect_title_to_summary(title)
+                target_summary = "まず，ある小説の要旨を示します．" +  summary_teller.connect_title_to_summary(title)
             else:
                 target_splited_texts = splited_texts
                 target_embeddings = embeddings
-                target_summary = ""
+                target_summary = "以下に示すragの検索結果は，複数の小説が混在している可能性があるので注意してください．"
 
             answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_summary)
             answer = extract_answer.extract_answer(answer)
