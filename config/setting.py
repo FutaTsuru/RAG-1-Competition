@@ -20,7 +20,8 @@ title_filter_dict = {
     "小説　不如帰": "不如帰",
     "流行暗殺節": "流行暗殺節"
 }
-#
+
+summary_csv_path = "./storage/summarize/"
 
 small_chunk_size = 500
 small_chunck_overlap = 100
