@@ -26,6 +26,7 @@ KEYWORD_PATH = "./storage/keyword/keyword.csv"
 
 summary_csv_path = "./storage/summarize/"
 
+process_extract_pattern = r"回答生成過程：(.+)"
 answer_extracct_pattern = r"回答：(.+)"
 
 small_chunk_size = 500

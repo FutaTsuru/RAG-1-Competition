@@ -12,3 +12,15 @@ def extract_answer(answer: str) -> str:
     else:
         print(answer)
         return "回答が見つかりませんでした。"
+
+def extract_process(answer: str) -> str:
+    pattern = setting.process_extract_pattern
+    
+    match = re.search(pattern, answer)
+    
+    if match:
+        answer = match.group(1).strip()
+        return answer
+    else:
+        print(f"回答過程が見つかりませんでした。 answer : {answer}")
+        return "回答過程が見つかりませんでした。"

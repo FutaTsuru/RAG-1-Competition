@@ -5,6 +5,7 @@ import numpy as np
 from rag_system import rag_system
 from classify_novels.Title_teller import Title_teller
 from classify_novels.summary_teller import Summary_teller
+from analyze_query.Keyword_teller import Keyword_teller
 from extract_answer import extract_answer
 from config import setting
 
@@ -12,11 +13,12 @@ class executor:
     def __init__(self, splited_texts_db: pd.DataFrame) -> None:
         self.splited_texts_db = splited_texts_db
         self.question_db = pd.read_csv("./question/query.csv")
+        self.keyword_teller = Keyword_teller()
     
     def run(self):
         data = {"index": [], "answer": [], "reason": []}
         all_data = {"index": [], "answer": [], "reason": []}
-        reason_num_data = {"index": [], "answer": [], "reason_num": []}
+        reason_num_data = {"index": [], "answer": [],"process": [] , "reason_num": []}
 
         splited_texts = self.splited_texts_db["chunk"].to_list()
 
@@ -32,6 +34,8 @@ class executor:
         for _, row in tqdm(self.question_db.iterrows(), total=len(self.question_db), desc="回答生成"):
             index = row['index']
             query = row['problem']
+            keyword = " ".join(self.keyword_teller.connect_query_to_keyword(index))
+            relative_word = " ".join(self.keyword_teller.connect_query_to_related_word(index))
             
             # RAGシステムの応答を取得 (質問と小説を紐づけられたら、引数のsplited_textsはその分縮小して渡す！)
             title = title_teller.connect_query_to_novel(index) # ここ引数indexでお願いしますby 進
@@ -45,22 +49,25 @@ class executor:
                 target_embeddings = embeddings
                 target_summary = ""
 
-            answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_summary)
-            answer = extract_answer.extract_answer(answer)
-            answer = answer.replace("\n", "")
+            answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_summary, keyword, relative_word)
+            answer_match = extract_answer.extract_answer(answer)
+            process_match = extract_answer.extract_process(answer)
+            answer_match = answer_match.replace("\n", "")
+            process_match = process_match.replace("\n", "")
             
             # データをリストに追加
             data["index"].append(index)
-            data["answer"].append(answer)
+            data["answer"].append(answer_match)
             data["reason"].append("なし")
 
             all_data["index"].append(index)
-            all_data["answer"].append(answer)
+            all_data["answer"].append(answer_match)
             all_data["reason"].append(reason)
 
             reason_num_data["index"].append(index)
-            reason_num_data["answer"].append(answer)
+            reason_num_data["answer"].append(answer_match)
             reason_num_data["reason_num"].append(len(reason))
+            reason_num_data["process"].append(process_match)
         
         prediction_db = pd.DataFrame(data)
         prediction_contain_reason_db = pd.DataFrame(all_data)

@@ -68,10 +68,10 @@ def generate_answer(system_prompt: str, query: str) -> str:
     answer = response.choices[0].message.content
     return answer
 
-def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray, summary: str) -> Tuple[str, List[str]]:
+def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray, summary: str, keyword:str, relativeword: str) -> Tuple[str, List[str]]:
     index = build_faiss_index(embeddings)
 
-    retrieved_chunks_with_scores = retrieve_similar_chunks(query, index, texts, embeddings)
+    retrieved_chunks_with_scores = retrieve_similar_chunks(keyword, index, texts, embeddings)
 
     retrieved_chunks = [chunk for chunk, score, idx in retrieved_chunks_with_scores]
 
