@@ -7,6 +7,26 @@ novel_lists = [
     '小説　不如帰.txt',
     '流行暗殺節.txt'
 ]
+# 小説分類用のセッティング
+CLASSIFY_SYSTEM_PROMPT_PATH = "./config/classify_system_prompt.md"
+classify_retrieval_num = 7
+classify_csv_path = "./storage/classify/classify.csv"
+title_filter_dict = {
+    "カインの末裔": "カインの末裔",
+    "サーカスの怪人": "サーカスの怪人",
+    "芽生": "芽生",
+    "競漕": "競漕",
+    "死生に関するいくつかの断想": "死生に関するいくつかの断想",
+    "小説　不如帰": "不如帰",
+    "流行暗殺節": "流行暗殺節"
+}
+#
+ANALYZE_SYSTEM_PROMPT_PATH = "./config/analysis_system_prompt.md"
+KEYWORD_PATH = "./storage/keyword/keyword.csv"
+
+summary_csv_path = "./storage/summarize/"
+
+answer_extracct_pattern = r"回答：(.+)"
 
 small_chunk_size = 500
 small_chunck_overlap = 100
