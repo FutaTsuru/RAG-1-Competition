@@ -4,6 +4,7 @@ import numpy as np
 
 from rag_system import rag_system
 from classify_novels.Title_teller import Title_teller
+from classify_novels.summary_teller import Summary_teller
 from config import setting
 
 class executor:
@@ -25,6 +26,7 @@ class executor:
         embeddings = np.load(setting.CHUNK_EMBEDDINGS_PATH)
 
         title_teller = Title_teller()
+        summary_teller = Summary_teller()
         
         for _, row in tqdm(self.question_db.iterrows(), total=len(self.question_db), desc="回答生成"):
             index = row['index']
@@ -36,11 +38,13 @@ class executor:
                 target_splited_texts = self.splited_texts_db[self.splited_texts_db["title"]==title]["chunk"].to_list()
                 index_list = self.splited_texts_db[self.splited_texts_db["title"]==title].index.tolist()
                 target_embeddings = np.take(embeddings, index_list, axis=0)  
+                target_summary = summary_teller.connect_title_to_summary(title)
             else:
                 target_splited_texts = splited_texts
                 target_embeddings = embeddings
+                target_summary = ""
 
-            answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings)
+            answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_summary)
             answer = answer.replace("\n", "")
             
             # データをリストに追加

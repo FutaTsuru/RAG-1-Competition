@@ -45,13 +45,13 @@ def retrieve_similar_chunks(query: str, index: faiss.IndexFlatIP, texts: List[st
     results.sort(key=lambda x: x[2])
     return results
 
-def build_prompt(retrieved_chunk: List[str]) -> str:
+def build_prompt(retrieved_chunk: List[str], summary: str) -> str:
     with open(setting.SYSTEM_PROMPT_PATH, 'r', encoding='utf-8') as file:
             system_prompt = file.read()
     chunk_str = ""
     for i in range(len(retrieved_chunk)):
         chunk_str += f"{i+1}つ目: '{retrieved_chunk[i]}'\n"
-    system_prompt = system_prompt.format(retrieved_chunk=chunk_str)
+    system_prompt = system_prompt.format(summary_data=summary, retrieved_chunk=chunk_str)
     return system_prompt
 
 def generate_answer(system_prompt: str, query: str) -> str:
@@ -68,14 +68,14 @@ def generate_answer(system_prompt: str, query: str) -> str:
     answer = response.choices[0].message.content
     return answer
 
-def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray):
+def run_rag_system(query: str, texts: List[str], embeddings: np.ndarray, summary: str) -> Tuple[str, List[str]]:
     index = build_faiss_index(embeddings)
 
     retrieved_chunks_with_scores = retrieve_similar_chunks(query, index, texts, embeddings)
 
     retrieved_chunks = [chunk for chunk, score, idx in retrieved_chunks_with_scores]
 
-    system_prompt = build_prompt(retrieved_chunks)
+    system_prompt = build_prompt(retrieved_chunks, summary)
 
     answer = generate_answer(system_prompt, query)
 
