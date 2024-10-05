@@ -21,7 +21,7 @@ class executor:
         splited_texts = self.splited_texts_db["chunk"].to_list()
 
         # 指定したテキストをベクトル化して、指定した保存先に保存する関数
-        # rag_system.make_and_save_embeddings(splited_texts, setting.CHUNK_EMBEDDINGS_PATH)
+        rag_system.make_and_save_embeddings(splited_texts, setting.CHUNK_EMBEDDINGS_PATH)
 
         # チャンクのベクトルを読み込む
         embeddings = np.load(setting.CHUNK_EMBEDDINGS_PATH)
