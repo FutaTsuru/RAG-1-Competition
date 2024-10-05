@@ -5,6 +5,7 @@ import numpy as np
 from rag_system import rag_system
 from classify_novels.Title_teller import Title_teller
 from classify_novels.summary_teller import Summary_teller
+from extract_answer import extract_answer
 from config import setting
 
 class executor:
@@ -45,6 +46,7 @@ class executor:
                 target_summary = ""
 
             answer, reason = rag_system.run_rag_system(query, target_splited_texts, target_embeddings, target_summary)
+            answer = extract_answer.extract_answer(answer)
             answer = answer.replace("\n", "")
             
             # データをリストに追加
