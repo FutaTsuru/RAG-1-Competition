@@ -40,7 +40,7 @@ SYSTEM_PROMPT_PATH = "./config/system_prompt.md"
 CHUNK_PATH = "./storage/chunk/chunk_info.csv"
 CHUNK_EMBEDDINGS_PATH = './storage/embeddings/chunk_embeddings.npy'
 
-embedding_model = "text-embedding-ada-002"
+embedding_model = "text-embedding-3-large"
 retrieval_num = 10
 # similarity_threshold = 0.775
 similarity_threshold = 0
