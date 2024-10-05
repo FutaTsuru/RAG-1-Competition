@@ -24,6 +24,8 @@ title_filter_dict = {
 ANALYZE_SYSTEM_PROMPT_PATH = "./config/analysis_system_prompt.md"
 KEYWORD_PATH = "./storage/keyword/keyword.csv"
 
+summary_csv_path = "./storage/summarize/"
+
 small_chunk_size = 500
 small_chunck_overlap = 100
 small_chunck_separator = "\n"
