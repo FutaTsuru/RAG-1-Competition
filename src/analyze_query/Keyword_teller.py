@@ -21,9 +21,9 @@ class Keyword_teller:
         important_word = self.df.iloc[index-1, 3]
         return important_word
     
-    def connect_query_to_answer_example(self, index: int) -> str:
-        answer_example = self.df.iloc[index-1, 4]
-        return answer_example
+    def connect_query_to_target_word(self, index: int) -> str:
+        target_word = self.df.iloc[index-1, 4]
+        return target_word
     
 
 if __name__ == "__main__":
