@@ -1,6 +1,9 @@
 # 本コンペティション
 ![Image](https://github.com/user-attachments/assets/8c8f9c04-76ea-400c-a658-8ae10a4fb087)
 
+# 結果
+銀メダル入賞！（83位）
+
 # 実行手順
 ディレクトリを変更する
 ```
